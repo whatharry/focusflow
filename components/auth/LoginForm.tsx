@@ -4,15 +4,24 @@ import { useState, useTransition } from 'react'
 import { Button } from '@/components/ui/Button'
 import { TextInput } from '@/components/ui/Field'
 import { signIn, signUp } from '@/server/actions/auth'
-
-type Mode = 'signin' | 'signup'
+import type { AuthMode } from './modes'
 
 /**
  * One form, two modes. A separate /signup route would be a second surface to
  * maintain for what is a single extra field.
+ *
+ * `mode` is owned by the screen above, because the heading has to change with it —
+ * "Welcome back" is the wrong thing to say to someone who has never been here.
  */
-export function LoginForm({ next }: { next: string | undefined }) {
-  const [mode, setMode] = useState<Mode>('signin')
+export function LoginForm({
+  next,
+  mode,
+  onModeChange,
+}: {
+  next: string | undefined
+  mode: AuthMode
+  onModeChange: (mode: AuthMode) => void
+}) {
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -87,7 +96,7 @@ export function LoginForm({ next }: { next: string | undefined }) {
           type="button"
           className="text-muted underline-offset-4 hover:text-ink hover:underline"
           onClick={() => {
-            setMode((current) => (current === 'signin' ? 'signup' : 'signin'))
+            onModeChange(mode === 'signin' ? 'signup' : 'signin')
             setError(null)
           }}
         >

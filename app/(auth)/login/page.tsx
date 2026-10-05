@@ -1,5 +1,4 @@
-import { AuthShell } from '@/components/auth/AuthShell'
-import { LoginForm } from '@/components/auth/LoginForm'
+import { LoginScreen } from '@/components/auth/LoginScreen'
 
 export const metadata = { title: 'Sign in · FocusFlow' }
 
@@ -13,18 +12,5 @@ export default async function LoginPage(props: PageProps<'/login'>) {
   const next = typeof params.next === 'string' ? params.next : undefined
   const linkError = typeof params.error === 'string' ? LINK_ERRORS[params.error] : undefined
 
-  return (
-    <AuthShell
-      title="Welcome back"
-      subtitle="Sign in to pick up where you left off."
-      footer="Your projects, tasks and focus history sync across every device you sign in on."
-    >
-      {linkError ? (
-        <p role="alert" className="mb-5 rounded-sm border border-line bg-raised px-3 py-2.5 text-small text-danger">
-          {linkError}
-        </p>
-      ) : null}
-      <LoginForm next={next} />
-    </AuthShell>
-  )
+  return <LoginScreen next={next} linkError={linkError} />
 }
