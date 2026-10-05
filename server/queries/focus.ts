@@ -41,6 +41,12 @@ export async function getFocusView(sessionId: string): Promise<FocusView> {
 
   const session = toFocusSession(sessionRow)
 
+  // An abandoned session has no screen of its own — there is no completion moment
+  // for work you stepped away from, and showing a dead timer with buttons that can
+  // only fail is worse than going back to Today. Reachable via the browser's back
+  // button after leaving, or by opening an old URL.
+  if (session.status === 'ABANDONED') redirect('/today')
+
   const [taskResult, projectsResult, tasksResult, milestonesResult] = await Promise.all([
     supabase
       .from('tasks')
@@ -88,6 +94,9 @@ export async function getFocusView(sessionId: string): Promise<FocusView> {
     taskTitle: task.title,
     projectName,
     nextTask: after.kind === 'TASK' ? { id: after.task.id, title: after.task.title } : null,
-    tasksCompletedToday: tasksCompletedOn(tasks, today, viewer.timeZone).length,
+    // Counted over `remaining`, so this task is deliberately excluded. The client
+    // adds it back the moment the session completes, which keeps the number right
+    // both when completion just happened and when a finished session is reloaded.
+    tasksCompletedToday: tasksCompletedOn(remaining, today, viewer.timeZone).length,
   }
 }

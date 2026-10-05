@@ -47,11 +47,8 @@ export function FocusScreen({
     return (
       <CompletionMoment
         focusedSeconds={session.accumulatedSeconds}
-        tasksCompletedToday={
-          // The rollup was computed before this task completed, so add it here
-          // rather than refetching the whole screen for one number.
-          session.status === 'COMPLETED' ? tasksCompletedToday + 1 : tasksCompletedToday
-        }
+        // The server's count excludes this task; reaching here means it is done.
+        tasksCompletedToday={tasksCompletedToday + 1}
         taskTitle={taskTitle}
         nextTask={nextTask}
       />

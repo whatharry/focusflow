@@ -38,6 +38,7 @@ export default async function ProjectsPage() {
   if (!viewer) redirect('/login')
 
   const [summaries, standalone] = await Promise.all([getProjectsView(), getStandaloneTasks()])
+  const standaloneOpen = standalone.filter((task) => isStartableStatus(task.status)).length
   const quickAddProjects = summaries.map((summary) => ({
     id: summary.project.id,
     name: summary.project.name,
@@ -94,12 +95,7 @@ export default async function ProjectsPage() {
             <div className="flex items-baseline justify-between gap-4">
               <h2 className="text-h3 font-semibold">No project</h2>
               <p className="shrink-0 text-small text-faint">
-                {standalone.filter((task) => isStartableStatus(task.status)).length}{' '}
-                {pluralise(
-                  standalone.filter((task) => isStartableStatus(task.status)).length,
-                  'task',
-                )}{' '}
-                open
+                {pluralise(standaloneOpen, 'task')} open
               </p>
             </div>
             <ul className="mt-4 space-y-1.5">

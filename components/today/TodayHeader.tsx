@@ -30,7 +30,7 @@ export function TodayHeader({
           <>
             {formatFocusedDuration(focusedSeconds)} focused
             {tasksCompleted > 0
-              ? ` · ${tasksCompleted} ${pluralise(tasksCompleted, 'task')} done`
+              ? ` · ${pluralise(tasksCompleted, 'task')} done`
               : ''}
           </>
         )}
