@@ -13,6 +13,18 @@ function isPublicPath(pathname: string): boolean {
 }
 
 /**
+ * API requests are gated by their own handlers, not here.
+ *
+ * A `fetch` cannot follow a redirect to an HTML login page usefully — the client
+ * would parse markup as JSON and report "that did not go through" for what is
+ * really an expired session. The route handlers answer 401 with a JSON body, which
+ * the caller can actually act on. The session refresh above still runs for them.
+ */
+function isApiPath(pathname: string): boolean {
+  return pathname === '/api' || pathname.startsWith('/api/')
+}
+
+/**
  * Refresh the Supabase session on every navigation and gate private routes.
  *
  * This is what keeps the installed iPhone PWA signed in: access tokens are
@@ -51,7 +63,7 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
 
   const { pathname, search } = request.nextUrl
 
-  if (!user && !isPublicPath(pathname)) {
+  if (!user && !isPublicPath(pathname) && !isApiPath(pathname)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     url.search = ''
