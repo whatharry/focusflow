@@ -8,6 +8,7 @@ import {
   type Project,
   type Task,
   type TaskOrderingContext,
+  type TaskStatus,
   type TaskPriority,
 } from './types'
 
@@ -93,8 +94,12 @@ const PRIORITY_RANK: Record<TaskPriority, number> = {
 // ── Eligibility ───────────────────────────────────────────────────────────────
 
 /** Statuses that can be worked on right now. BACKLOG is an explicit "not now". */
-function isStartableStatus(task: TaskCandidate): boolean {
-  return task.status === 'TODO' || task.status === 'IN_PROGRESS'
+export function isStartableStatus(status: TaskStatus): boolean {
+  return status === 'TODO' || status === 'IN_PROGRESS'
+}
+
+function isStartable(task: TaskCandidate): boolean {
+  return isStartableStatus(task.status)
 }
 
 /**
@@ -219,7 +224,7 @@ export function pickNextAction(input: PickNextActionInput): NextAction {
   const projectPositions = new Map(projects.map((project) => [project.id, project.position]))
 
   const visible = tasks.filter((task) => isVisible(task, activeProjectIds))
-  const startable = visible.filter(isStartableStatus)
+  const startable = visible.filter(isStartable)
 
   if (startable.length === 0) {
     return { kind: 'NONE', reason: explainEmpty(visible) }
@@ -251,7 +256,7 @@ export function rankStartableTasks(input: PickNextActionInput): TaskCandidate[] 
   const projectPositions = new Map(projects.map((project) => [project.id, project.position]))
 
   return tasks
-    .filter((task) => isVisible(task, activeProjectIds) && isStartableStatus(task))
+    .filter((task) => isVisible(task, activeProjectIds) && isStartable(task))
     .map((task) => ({ task, key: buildSortKey(task, projectPositions, today) }))
     .sort((a, b) => compareSortKeys(a.key, b.key))
     .map((entry) => entry.task)

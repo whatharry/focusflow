@@ -12,7 +12,13 @@ export type TaskPriorityRow = 'LOW' | 'NORMAL' | 'HIGH'
 export type ProjectStatusRow = 'ACTIVE' | 'ARCHIVED'
 export type SessionStatusRow = 'STARTED' | 'PAUSED' | 'COMPLETED' | 'ABANDONED'
 
-interface ProfileRow {
+// Row shapes are type aliases, not interfaces, on purpose: TypeScript grants an
+// implicit index signature to object type aliases but not to interfaces, and
+// supabase-js constrains a schema's tables to Record<string, GenericTable>. With
+// interfaces here the constraint fails and every query's row type degrades to
+// `never` — with select('*') silently returning `any` and hiding it.
+
+type ProfileRow = {
   id: string
   display_name: string | null
   timezone: string
@@ -20,7 +26,7 @@ interface ProfileRow {
   updated_at: string
 }
 
-interface ProjectRow {
+type ProjectRow = {
   id: string
   user_id: string
   name: string
@@ -35,7 +41,7 @@ interface ProjectRow {
   updated_at: string
 }
 
-interface MilestoneRow {
+type MilestoneRow = {
   id: string
   user_id: string
   project_id: string
@@ -45,7 +51,7 @@ interface MilestoneRow {
   updated_at: string
 }
 
-interface TaskRow {
+type TaskRow = {
   id: string
   user_id: string
   project_id: string | null
@@ -67,7 +73,7 @@ interface TaskRow {
   updated_at: string
 }
 
-interface FocusSessionRow {
+type FocusSessionRow = {
   id: string
   user_id: string
   task_id: string
@@ -127,14 +133,17 @@ export interface Database {
         Relationships: []
       }
     }
-    Views: Record<never, never>
-    Functions: Record<never, never>
+    // String index signatures, not `Record<never, never>`: supabase-js constrains
+    // a schema to `Record<string, …>`, and an empty object type does not satisfy
+    // that — which silently collapses every query's row type to `never`.
+    Views: Record<string, never>
+    Functions: Record<string, never>
     Enums: {
       task_status: TaskStatusRow
       task_priority: TaskPriorityRow
       project_status: ProjectStatusRow
       session_status: SessionStatusRow
     }
-    CompositeTypes: Record<never, never>
+    CompositeTypes: Record<string, never>
   }
 }
