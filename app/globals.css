@@ -1,26 +1,219 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+/* ══════════════════════════════════════════════════════════════════════════════
+   FocusFlow design tokens
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+   Colours are declared as plain custom properties on :root and overridden inside
+   the dark media query, then exposed to Tailwind through `@theme inline` — inline
+   so the generated utilities reference var(…) rather than copying a literal, which
+   is what lets one stylesheet serve both colour schemes.
+
+   One accent, used almost nowhere. Scarcity is what makes START FOCUS read as a
+   command instead of decoration.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  --ff-canvas: #fbfbfa;
+  --ff-surface: #ffffff;
+  --ff-raised: #ffffff;
+  --ff-line: #e6e5e2;
+  --ff-line-strong: #d6d4d0;
+  --ff-ink: #16181c;
+  --ff-muted: #6b7078;
+  --ff-faint: #9ca1a9;
+  --ff-accent: #4f46e5;
+  --ff-accent-hover: #4338ca;
+  --ff-accent-ink: #ffffff;
+  --ff-accent-wash: #eef0fe;
+  --ff-success: #1f7a52;
+  --ff-danger: #b3261e;
+
+  --ff-elev-1: 0 1px 2px rgb(0 0 0 / 0.04);
+  --ff-elev-2: 0 8px 24px rgb(0 0 0 / 0.12);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --ff-canvas: #0b0c0e;
+    --ff-surface: #131519;
+    --ff-raised: #1a1d22;
+    --ff-line: #24282e;
+    --ff-line-strong: #30353d;
+    --ff-ink: #f2f3f5;
+    --ff-muted: #8e949e;
+    --ff-faint: #5f656e;
+    --ff-accent: #6b63f6;
+    --ff-accent-hover: #7f78f8;
+    --ff-accent-ink: #ffffff;
+    --ff-accent-wash: #1b1b32;
+    --ff-success: #3dbe85;
+    --ff-danger: #f2837a;
+
+    --ff-elev-1: 0 1px 2px rgb(0 0 0 / 0.3);
+    --ff-elev-2: 0 8px 24px rgb(0 0 0 / 0.5);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-canvas: var(--ff-canvas);
+  --color-surface: var(--ff-surface);
+  --color-raised: var(--ff-raised);
+  --color-line: var(--ff-line);
+  --color-line-strong: var(--ff-line-strong);
+  --color-ink: var(--ff-ink);
+  --color-muted: var(--ff-muted);
+  --color-faint: var(--ff-faint);
+  --color-accent: var(--ff-accent);
+  --color-accent-hover: var(--ff-accent-hover);
+  --color-accent-ink: var(--ff-accent-ink);
+  --color-accent-wash: var(--ff-accent-wash);
+  --color-success: var(--ff-success);
+  --color-danger: var(--ff-danger);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+
+  --text-micro: 0.75rem;
+  --text-micro--line-height: 1rem;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.35rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6rem;
+  --text-h2: 1.25rem;
+  --text-h2--line-height: 1.7rem;
+  --text-h1: 1.75rem;
+  --text-h1--line-height: 2.1rem;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  --shadow-elev-1: var(--ff-elev-1);
+  --shadow-elev-2: var(--ff-elev-2);
+
+  /* 120ms micro, 200ms default, 600ms for the completion moment only. */
+  --ease-calm: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--ff-canvas);
+    color: var(--ff-ink);
+    font-family: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Headings carry the "premium" weight through type, not decoration. */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  /* Always visible on keyboard focus, never on mouse click. */
+  :focus-visible {
+    outline: 2px solid var(--ff-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  button,
+  [role="button"] {
+    cursor: pointer;
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+  }
+
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  ::placeholder {
+    color: var(--ff-faint);
+  }
+}
+
+@layer utilities {
+  /* The Focus Mode timer. Light weight at large size reads calm rather than loud;
+     tabular figures stop the layout twitching as digits change. */
+  .ff-timer {
+    font-size: clamp(4.5rem, 20vw, 7.5rem);
+    font-weight: 200;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .ff-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Uppercase micro-label: "NEXT", "DEFINITION OF DONE". */
+  .ff-label {
+    font-size: var(--text-micro);
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ff-faint);
+  }
+
+  /* iPhone notch and home-indicator insets, used by the app shell and Focus Mode. */
+  .ff-safe-top {
+    padding-top: max(1rem, env(safe-area-inset-top));
+  }
+
+  .ff-safe-bottom {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .ff-rise {
+    animation: ff-rise 200ms var(--ease-calm) both;
+  }
+
+  /* The one deliberately slower moment in the product. */
+  .ff-reveal {
+    animation: ff-reveal 600ms var(--ease-calm) both;
+  }
+}
+
+@keyframes ff-rise {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes ff-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
