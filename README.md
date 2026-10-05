@@ -143,6 +143,23 @@ cross-user RLS isolation. **The app never needs Docker** — this is a test tool
 ./supabase/verify/run.sh
 ```
 
+### Running the whole app locally (optional)
+
+`supabase/config.toml` is checked in so the Supabase CLI can bring up a full local
+stack — Postgres, GoTrue, the REST API — on this machine. It is a convenience for
+development and end-to-end checking; **the app itself only ever needs the two
+`NEXT_PUBLIC_*` values**, pointed at whichever Supabase you like.
+
+```bash
+npx supabase start     # prints the API URL and the anon key
+npx supabase db reset  # applies supabase/migrations/ to the local database
+```
+
+Put the printed API URL and anon key in `.env.local` and `npm run dev` talks to the
+local stack instead of the cloud. Email confirmation is already off in the config,
+and sent mail is captured by Mailpit rather than delivered. `npx supabase stop`
+when you are done.
+
 ---
 
 ## Deploying
