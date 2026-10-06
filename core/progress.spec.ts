@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import { formatDueDate } from './date'
 import {
   dailyProgress,
   focusedSecondsOn,
@@ -247,5 +248,28 @@ describe('date helpers', () => {
     expect(greetingForHour(17)).toBe('Good afternoon')
     expect(greetingForHour(18)).toBe('Good evening')
     expect(greetingForHour(23)).toBe('Good evening')
+  })
+})
+
+describe('formatDueDate', () => {
+  const today = '2026-10-05'
+
+  it('says Overdue rather than counting the days', () => {
+    expect(formatDueDate('2026-10-04', today)).toBe('Overdue')
+    expect(formatDueDate('2025-01-01', today)).toBe('Overdue')
+  })
+
+  it('names today and tomorrow', () => {
+    expect(formatDueDate('2026-10-05', today)).toBe('Due today')
+    expect(formatDueDate('2026-10-06', today)).toBe('Due tomorrow')
+  })
+
+  it('falls back to a short date further out', () => {
+    expect(formatDueDate('2026-10-12', today)).toBe('Due 12 Oct')
+    expect(formatDueDate('2027-01-03', today)).toBe('Due 3 Jan')
+  })
+
+  it('returns nothing for an unreadable date rather than throwing', () => {
+    expect(formatDueDate('not-a-date', today)).toBe('')
   })
 })

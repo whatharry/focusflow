@@ -102,3 +102,28 @@ export function greetingForHour(hour: number): Greeting {
   if (hour < 18) return 'Good afternoon'
   return 'Good evening'
 }
+
+const MONTHS = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+] as const
+
+/**
+ * How a due date should read, relative to the day the reader is having.
+ *
+ * Pure: `today` is supplied, never looked up. "Overdue" is deliberately blunt
+ * rather than a count of days — the number does not change what you do about it,
+ * and a growing number is just a nagging counter.
+ */
+export function formatDueDate(date: LocalDate, today: LocalDate): string {
+  const days = localDaysBetween(today, date)
+  if (Number.isNaN(days)) return ''
+  if (days < 0) return 'Overdue'
+  if (days === 0) return 'Due today'
+  if (days === 1) return 'Due tomorrow'
+
+  const month = MONTHS[Number(date.slice(5, 7)) - 1]
+  const day = Number(date.slice(8, 10))
+  if (month === undefined || !Number.isFinite(day)) return ''
+  return `Due ${day} ${month}`
+}
