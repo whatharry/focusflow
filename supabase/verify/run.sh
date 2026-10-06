@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Executes 0001_core.sql against a throwaway Postgres and asserts the schema's
-# invariants: the signup trigger, task defaults, the pause-integrity CHECK, the
-# one-live-session index, and RLS isolation between two users.
+# Executes every migration in order against a throwaway Postgres and asserts the
+# schema's invariants: the signup trigger, task defaults, the pause-integrity
+# CHECK, the one-live-session index, the project/milestone composite foreign
+# keys, archive losslessness, and RLS isolation between two users.
 #
 # Needs Docker, and only to verify the schema — the app itself never requires it.
 #
@@ -24,11 +25,16 @@ run() { docker cp "$1" "$NAME:/tmp/s.sql" >/dev/null; docker exec "$NAME" psql -
 
 echo "── stubbing Supabase auth schema"
 run supabase/verify/00_auth_stub.sql
-echo "── applying 0001_core.sql"
-run supabase/migrations/0001_core.sql
+echo "── applying migrations"
+for migration in supabase/migrations/*.sql; do
+  echo "   $(basename "$migration")"
+  run "$migration"
+done
 echo "── constraints, defaults and triggers"
 run supabase/verify/01_constraints.sql
 echo "── row level security"
 run supabase/verify/02_rls.sql
+echo "── project structure, archive and milestone isolation"
+run supabase/verify/03_structure.sql
 echo
 echo "✓ schema verified"
