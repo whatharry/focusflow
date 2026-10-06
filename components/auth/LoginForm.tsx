@@ -47,7 +47,7 @@ export function LoginForm({
           name="display_name"
           label="Your name"
           autoComplete="name"
-          placeholder="Aswad"
+          placeholder="Harry"
           hint="Used for the greeting on Today. Optional."
         />
       ) : null}

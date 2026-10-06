@@ -4,12 +4,12 @@
 -- ── 1. signup trigger creates a profile atomically ───────────────────────────
 insert into auth.users (id, email, raw_user_meta_data)
 values ('11111111-1111-1111-1111-111111111111', 'a@example.com',
-        '{"display_name":"Aswad","timezone":"Asia/Karachi"}'::jsonb);
+        '{"display_name":"Harry","timezone":"Asia/Karachi"}'::jsonb);
 insert into auth.users (id, email) values ('22222222-2222-2222-2222-222222222222', 'b@example.com');
 
 select '1. profile trigger' as check,
        (select count(*) from public.profiles) = 2 as two_profiles,
-       (select display_name from public.profiles where id = '11111111-1111-1111-1111-111111111111') = 'Aswad' as name_ok,
+       (select display_name from public.profiles where id = '11111111-1111-1111-1111-111111111111') = 'Harry' as name_ok,
        (select timezone from public.profiles where id = '11111111-1111-1111-1111-111111111111') = 'Asia/Karachi' as tz_ok,
        (select timezone from public.profiles where id = '22222222-2222-2222-2222-222222222222') = 'UTC' as tz_default_ok;
 
